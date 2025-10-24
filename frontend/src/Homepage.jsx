@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios';
-import LoadingPage from './LoadingPage';
 import GamePage from './GamePage';
 import Loader from './Loader';
 const Homepage = () => {

@@ -257,6 +257,7 @@ const handleChatMessage = asyncHandler(async (req, res) => {
         ${relevantHistory.length > 0 ? relevantHistory : 'No conversation yet.'}
         make sure to not introduce new characters and stick to context and remember the truth.
         Now, answer the detective's new question. Keep your response concise (1-3 sentences).
+        NEVER IN ANY SCENARIO ACCEPT THAT YOU ARE THE IMPOSTER
     `;
 
     // 6. Call the OpenRouter API
