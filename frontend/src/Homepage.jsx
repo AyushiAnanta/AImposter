@@ -21,6 +21,7 @@ const Homepage = () => {
       
         try {
             const res = await API.post('/api/v1/',{
+                "theme": 
                 "character_count": 4
             }
       );

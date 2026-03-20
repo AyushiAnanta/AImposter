@@ -4,72 +4,87 @@ import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
 import axios from "axios";
+import { OpenRouter } from "@openrouter/sdk";
+
 
 
 const createGame = asyncHandler(async (req, res) => {
-    // 1. Get the optional 'theme' and 'location' from the request body (req.body).
-    // 2. Construct the master prompt for the AI based on the user's input.
-    // 3. Call the OpenRouter API to generate the game scenario (story, characters, truth, etc.).
-    // 4. Parse the AI's JSON response.
-    // 5. Create a new GameSession document in MongoDB with the data from the AI.
-    // 6. Respond to the frontend with the newly created game session object, including its unique _id.
-    // ---- NEW: Read theme and location from the request body ----
-    const { theme, location, character_count } = req.body;
-    console.log(`Received new game request with Theme: ${theme}, Location: ${location}, Character Count: ${character_count}`);
-    
+  // 1. Extract inputs
+  const { theme, location, character_count } = req.body;
 
-    character_count? character_count : character_count = Math.floor(Math.random() * (6 - 3 + 1) + 3);
-    if(character_count <2) {
-        throw new ApiError(400, "Character count must be at least 2.");
-    }
-    // ---- NEW: Dynamically build the master prompt ----
-    // This function will create the prompt based on user input.
-    const masterPrompt = buildMasterPrompt(theme, location, character_count);
+  console.log(
+    `Received new game request with Theme: ${theme}, Location: ${location}, Character Count: ${character_count}`
+  );
 
+  // 2. Fix character count
+  let finalCharacterCount =
+    character_count || Math.floor(Math.random() * 4) + 3;
+
+  if (finalCharacterCount < 2) {
+    throw new ApiError(400, "Character count must be at least 2.");
+  }
+
+  // 3. Build prompt
+  const masterPrompt = buildMasterPrompt(
+    theme,
+    location,
+    finalCharacterCount
+  );
+
+  if (!masterPrompt) {
+    throw new ApiError(500, "Prompt generation failed");
+  }
+
+  console.log("PROMPT:", masterPrompt);
+
+  try {
+    // 4. Call OpenRouter
+    const aiResponse = await axios.post(
+  "https://openrouter.ai/api/v1/chat/completions",
+  {
+    model: "openrouter/free",
+    messages: [
+      {
+        role: "user",
+        content: masterPrompt,
+      },
+    ],
+  },
+  {
+    headers: {
+      Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+      "Content-Type": "application/json",
+
+      // 🔥 REQUIRED by OpenRouter
+      "HTTP-Referer":`${process.env.APP_URL}`, // or your app URL
+      "X-Title": "AImposter Game",
+    },
+  }
+);
+
+const response = aiResponse.data.choices[0].message.content;
+console.log("AI RESPONSE:", response);
+
+    // 6. OPTIONAL: parse JSON (depends on your prompt)
+    let parsedData;
     try {
-        const response = await axios.post(
-            "https://openrouter.ai/api/v1/chat/completions",
-            {
-                model: "tngtech/deepseek-r1t2-chimera:free",
-                messages: [{ role: "system", content: masterPrompt }],
-                response_format: { "type": "json_object" }
-            },
-            {
-                headers: {
-                    "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
-                    "Content-Type": "application/json",
-                    "HTTP-Referer": "http://localhost:3000",
-                    "X-Title": "AImposter"
-                }
-            }
-        );
+      parsedData = JSON.parse(response);
+    } catch (err) {
+      throw new ApiError(500, "Failed to parse AI response as JSON");
+    }
 
-        const aiResponseContent = response.data.choices[0].message.content;
-        const gameData = JSON.parse(aiResponseContent);
+    // 7. Save to DB
+    const game = await GameSession.create(parsedData);
 
-        // Future step: Save this gameData to MongoDB here.
-        const gameSession = await GameSession.create(
-        {
-            status: "active",
-            story: gameData.story,
-            theme: gameData.theme,
-            location: gameData.location,
-            characters: gameData.characters,   
-            truth: gameData.truth,
-            chatHistory: []
-        }
+    // 8. Send response
+    return res.status(201).json(
+      new ApiResponse(201, game, "Game created successfully")
     );
 
-    if(!gameSession){
-        throw new ApiError(500, "Failed to create new game session.");
-    }
-    
-    return res.status(201).json(new ApiResponse(201, gameSession, "New game session created successfully."));
-       
-
-    } catch (error) {
-        throw new ApiError(500, error,"Failed to generate new game.");
-    }
+  } catch (error) {
+    console.error("AI ERROR:", error);
+    throw new ApiError(500, "AI generation failed");
+  }
 
     
     function buildMasterPrompt(theme, location, character_count) {
