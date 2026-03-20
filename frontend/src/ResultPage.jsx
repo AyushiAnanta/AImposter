@@ -2,7 +2,7 @@ import React from 'react'
 
 const ResultPage = ({result}) => {
   return (
-    <div className='min-h-screen w-full bg-neutral-900 bg-[url(d5.png)] bg-cover bg-center font-sans'>
+    <div className='min-h-screen w-full bg-neutral-900 bg-[url("/d5.png")] bg-cover bg-center font-sans'>
         <div className='min-h-screen w-full max-h-[90vh] flex flex-col justify-center items-center bg-black bg-opacity-90 p-4 sm:p-8'>
             <div className='w-full min-h-[80vh] max-w-4xl bg-amber-50 shadow-2xl rounded-lg overflow-hidden transform transition-all duration-500 ease-in-out scale-100 flex flex-col justify-center'>
                 <div className='fixed mt-0 bg-stone-800 p-4 text-center relative flex justify-center items-center shrink-0'>

@@ -46,7 +46,7 @@ const ChatPage = ({chatcharacter, gameData, onNewMessage, setChat}) => {
   };
 
   return (
-    <div className='min-h-screen w-full bg-neutral-900 bg-[url(d5.png)] bg-cover bg-center font-sans'>
+    <div className='min-h-screen w-full bg-neutral-900 bg-[url("/d5.png")] bg-cover bg-center font-sans'>
       {/* Set max-height for the viewport */}
       <div className='min-h-screen w-full max-h-[90vh] flex flex-col justify-center items-center bg-black bg-opacity-90 p-4 sm:p-8'>
         

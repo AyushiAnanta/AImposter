@@ -42,7 +42,7 @@ const Homepage = () => {
     }
     else {
   return (
-    <div className="h-screen w-screen flex flex-col items-center justify-center fixed bg-[url(d1.png)] bg-no-repeat bg-cover bg-center">
+    <div className="h-screen w-screen flex flex-col items-center justify-center fixed bg-[url('/d1.png')] bg-no-repeat bg-cover bg-center">
       
         <h1 className='text-6xl special-elite-regular font-bold text-neutral-900 m-5'>AImposter</h1>
         <h5 className='text-2xl special-elite-regular font-bold text-neutral-700 px-3 align-center text-center'>Every character has a story, One of them is fiction.</h5>

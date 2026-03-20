@@ -58,7 +58,7 @@ useEffect(() => {
         return <ChatPage chatcharacter={chatcharacter} gameData={gameData} onNewMessage={handleChatUpdate} setChat={setChat}/>
       } else if(gameData) {
       return (
-        <div className='min-h-screen w-full bg-neutral-900 bg-[url(d5.png)] bg-cover bg-center font-sans'>
+        <div className='min-h-screen w-full bg-neutral-900 bg-[url("/d5.png")] bg-cover bg-center font-sans'>
           <div className='min-h-screen w-full flex flex-col justify-center items-center bg-black bg-opacity-50 p-4 sm:p-8'>
             
             {/* Render loading spinner while waiting for data, otherwise render the game content */}

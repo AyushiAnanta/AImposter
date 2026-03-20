@@ -2,7 +2,7 @@ import { TypeAnimation } from 'react-type-animation';
  
 const Loader = () => {
   return (
-    <div className='special-elite-regular fixed bg-[url(d2.png)] bg-no-repeat bg-cover bg-center flex flex-col items-center justify-center text-black h-full w-full' >
+    <div className='special-elite-regular fixed bg-[url("/d2.png")] bg-no-repeat bg-cover bg-center flex flex-col items-center justify-center text-black h-full w-full' >
         <div className="w-16 h-16 p-4 border-4 border-dashed rounded-full animate-spin border-amber-800"></div>
     <TypeAnimation  className='text-center'
       sequence={[
