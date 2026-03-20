@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import ResultPage from './ResultPage'
-import API from "../api/axios";
+import API from "./api/axios";
 
 const AccusePage = ({gameData}) => {
 

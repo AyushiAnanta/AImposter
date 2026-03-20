@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import API from "../api/axios";
+import API from "./api/axios";
 import ChatPage from './ChatPage';
 import AccusePage from './AccusePage';
 

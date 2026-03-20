@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import API from "../api/axios.js";
+import API from './api/axios';
 
 import GamePage from './GamePage';
 import Loader from './Loader';
