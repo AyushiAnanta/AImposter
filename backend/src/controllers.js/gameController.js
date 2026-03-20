@@ -2,7 +2,7 @@ import mongoose from "mongoose"
 import {GameSession} from "../models/gameSession.js"
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
-import {asyncHandler} from "../utils/AsyncHandler.js"
+import {asyncHandler} from "../utils/asyncHandler.js"
 import axios from "axios";
 
 
