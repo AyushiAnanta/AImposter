@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import axios from 'axios';
+import API from "../api/axios";
+
 import GamePage from './GamePage';
 import Loader from './Loader';
 const Homepage = () => {
@@ -19,7 +20,7 @@ const Homepage = () => {
       setLoading(true)
       
         try {
-            const res = await axios.post('/api/v1/',{
+            const res = await API.post('/api/v1/',{
                 "character_count": 4
             }
       );

@@ -1,4 +1,5 @@
-import axios from 'axios';
+import API from "../api/axios";
+
 import React, { useState } from 'react';
 
 const ChatPage = ({chatcharacter, gameData, onNewMessage, setChat}) => {
@@ -15,7 +16,7 @@ const ChatPage = ({chatcharacter, gameData, onNewMessage, setChat}) => {
 
     try {
       // Send the chat message
-      const res = await axios.post(`/api/v1/${gameData._id}/chat`, {
+      const res = await API.post(`/api/v1/${gameData._id}/chat`, {
         "characterName": chatcharacter,
         "message": message
       });

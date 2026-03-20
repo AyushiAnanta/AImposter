@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import API from "../api/axios";
 import ChatPage from './ChatPage';
 import AccusePage from './AccusePage';
 
@@ -15,7 +15,7 @@ const GamePage = ({context_ID}) => {
     const fetchGameContext = async () => {
       try {
         // Using the provided endpoint to fetch the specific game context.
-        const response = await axios.get(`/api/v1/${context_ID}`);
+        const response = await API.get(`/api/v1/${context_ID}`);
         setGameData(response.data.data);
       } catch (error) {
         console.error('Failed to fetch game data:', error);

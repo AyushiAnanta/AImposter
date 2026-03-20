@@ -1,6 +1,6 @@
-import axios from 'axios'
 import React, { useState } from 'react'
 import ResultPage from './ResultPage'
+import API from "../api/axios";
 
 const AccusePage = ({gameData}) => {
 
@@ -10,7 +10,7 @@ const AccusePage = ({gameData}) => {
     const MakeAccusation = async (char) => {
         console.log('accusation doinnnn')
         try {
-            const res = await axios.post(`/api/v1/${gameData._id}/accuse`, {
+            const res = await API.post(`/api/v1/${gameData._id}/accuse`, {
                 "characterName":char
             })
             console.log(res.data)
