@@ -281,7 +281,7 @@ const handleChatMessage = asyncHandler(async (req, res) => {
         const response = await axios.post(
             "https://openrouter.ai/api/v1/chat/completions",
             {
-                model: "tngtech/deepseek-r1t2-chimera:free", // Using a standard model ID
+                model: "nvidia/nemotron-nano-9b-v2:free", // Using a standard model ID
                 messages: [
                     { role: "system", content: systemPrompt },
                     { role: "user", content: message } // The player's message
