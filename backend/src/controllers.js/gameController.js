@@ -42,7 +42,7 @@ const createGame = asyncHandler(async (req, res) => {
     const aiResponse = await axios.post(
   "https://openrouter.ai/api/v1/chat/completions",
   {
-    model: "openrouter/free",
+    model: "nvidia/nemotron-nano-9b-v2:free",
     messages: [
       {
         role: "user",
@@ -56,7 +56,7 @@ const createGame = asyncHandler(async (req, res) => {
       "Content-Type": "application/json",
 
       // 🔥 REQUIRED by OpenRouter
-      "HTTP-Referer":`${process.env.APP_URL}`, // or your app URL
+      "HTTP-Referer":` "http://localhost:3000"`, // or your app URL
       "X-Title": "AImposter Game",
     },
   }
@@ -64,7 +64,7 @@ const createGame = asyncHandler(async (req, res) => {
 
 const response = aiResponse.data.choices[0].message.content;
 console.log("AI RESPONSE:", response);
-
+console.log("MODEL USED:", aiResponse.data.model)
     // 6. OPTIONAL: parse JSON (depends on your prompt)
     let parsedData;
     try {
