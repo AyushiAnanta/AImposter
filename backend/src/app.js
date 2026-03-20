@@ -4,8 +4,10 @@ import cookieParser from "cookie-parser";
 
 const app = express();
 
-app.use(cors({
+// ✅ Define CORS options ONCE
+const corsOptions = {
   origin: function (origin, callback) {
+    // allow requests with no origin (like Postman)
     if (!origin) return callback(null, true);
 
     if (
@@ -18,17 +20,31 @@ app.use(cors({
     }
   },
   credentials: true
-}));
+};
 
-//configuratios!!!!!!!!!!!!!!!!!!1
-app.use(express.json({limit: "4kb"}))
-app.use(express.urlencoded({extended: true, limit: "4kb"}))
-app.use(express.static("public"))
-app.use(cookieParser())
-app.options("*", cors());
+// ✅ Apply CORS middleware
+app.use(cors(corsOptions));
 
+// ✅ Handle preflight requests properly
+app.options("*", cors(corsOptions));
+
+// ✅ Body parsers
+app.use(express.json({ limit: "4kb" }));
+app.use(express.urlencoded({ extended: true, limit: "4kb" }));
+
+// ✅ Static files
+app.use(express.static("public"));
+
+// ✅ Cookies
+app.use(cookieParser());
+
+// ✅ Routes
 import gameRoutes from "./routes/gameRoutes.js";
-
 app.use("/api/v1", gameRoutes);
 
-export {app};
+// (optional) health check route
+app.get("/", (req, res) => {
+  res.send("Backend is running");
+});
+
+export { app };
