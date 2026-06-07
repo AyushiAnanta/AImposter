@@ -1,6 +1,6 @@
 import React from 'react'
 
-const ResultPage = ({result}) => {
+const ResultPage = ({result, onPlayAgain}) => {
   return (
     <div className='min-h-screen w-full bg-neutral-900 bg-[url("/d5.png")] bg-cover bg-center font-sans'>
         <div className='min-h-screen w-full max-h-[90vh] flex flex-col justify-center items-center bg-black bg-opacity-90 p-4 sm:p-8'>
@@ -10,7 +10,14 @@ const ResultPage = ({result}) => {
                 </div>
                 <div className='flex-1 flex flex-col justify-center items-center border-2 border-dashed border-stone-300 pb-6 p-4 m-2 '>
                     <h2 className="text-3xl text-center font-serif font-bold text-stone-800 mb-3">Truth</h2>
-                    <p className='text-stone-700 font-semibold leading-relaxed text-justify'>{result.message.truth}</p>
+                    <p className='text-stone-700 font-semibold leading-relaxed text-justify mb-6'>{result.message.truth}</p>
+                    <button
+                      type="button"
+                      onClick={onPlayAgain}
+                      className="px-8 py-3 text-lg font-serif font-bold uppercase tracking-wider text-amber-100 bg-stone-800 hover:bg-stone-700 hover:scale-105 active:scale-95 transition-all duration-200 rounded-md shadow-md"
+                    >
+                      Play Again
+                    </button>
                 </div>
             </div>
         </div>

@@ -25,6 +25,8 @@ const createGame = asyncHandler(async (req, res) => {
   }
 
   try {
+    const startTime = Date.now();
+
     // 3. Call FastAPI Service
     const fastapiUrl = process.env.FASTAPI_SERVICE_URL || "http://127.0.0.1:8001";
     const aiResponse = await axios.post(`${fastapiUrl}/api/ai/generate-scenario`, {
@@ -32,6 +34,9 @@ const createGame = asyncHandler(async (req, res) => {
       location,
       character_count: finalCharacterCount
     });
+
+    const duration = ((Date.now() - startTime) / 1000).toFixed(2);
+    console.log(`Story generation completed successfully in ${duration} seconds.`);
 
     const parsedData = aiResponse.data;
 

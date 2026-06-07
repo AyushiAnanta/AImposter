@@ -1,6 +1,7 @@
 import os
 import json
 import logging
+import time
 from typing import Optional
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -26,9 +27,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-if not OPENROUTER_API_KEY:
-    logger.error("OPENROUTER_API_KEY is not set in environment variables.")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+if not GROQ_API_KEY:
+    logger.error("GROQ_API_KEY is not set in environment variables.")
 
 # Request models
 class ScenarioRequest(BaseModel):
@@ -92,77 +93,79 @@ def build_master_prompt(theme: Optional[str], location: Optional[str], character
 
 @app.post("/api/ai/generate-scenario")
 async def generate_scenario(payload: ScenarioRequest):
-    if not OPENROUTER_API_KEY:
-        raise HTTPException(status_code=500, detail="OpenRouter API key is missing on the server.")
+    if not GROQ_API_KEY:
+        raise HTTPException(status_code=500, detail="GROQ_API_KEY is missing on the server.")
 
     prompt = build_master_prompt(payload.theme, payload.location, payload.character_count)
     logger.info(f"Generating scenario for Theme: {payload.theme}, Location: {payload.location}")
 
+    start_time = time.time()
+
     async with httpx.AsyncClient(timeout=60.0) as client:
         try:
             response = await client.post(
-                "https://openrouter.ai/api/v1/chat/completions",
+                "https://api.groq.com/openai/v1/chat/completions",
                 json={
-                    "model": "nvidia/nemotron-nano-9b-v2:free",
+                    "model": "llama-3.3-70b-versatile",
                     "messages": [{"role": "user", "content": prompt}],
                 },
                 headers={
-                    "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+                    "Authorization": f"Bearer {GROQ_API_KEY}",
                     "Content-Type": "application/json",
-                    "HTTP-Referer": "http://localhost:3000",
-                    "X-Title": "AImposter Game",
                 }
             )
             response.raise_for_status()
             data = response.json()
             content = data["choices"][0]["message"]["content"]
-            logger.info("AI raw response successfully received.")
+            logger.info("AI raw response successfully received from Groq.")
             
             # Clean and parse JSON
             scenario_json = clean_json_response(content)
+            
+            duration = time.time() - start_time
+            logger.info(f"Story generation completed successfully in {duration:.2f} seconds.")
+            
             return scenario_json
 
         except httpx.HTTPStatusError as e:
-            logger.error(f"OpenRouter HTTP Error: {e.response.text}")
-            raise HTTPException(status_code=e.response.status_code, detail=f"OpenRouter API error: {e.response.text}")
+            logger.error(f"Groq HTTP Error: {e.response.text}")
+            raise HTTPException(status_code=e.response.status_code, detail=f"Groq API error: {e.response.text}")
         except Exception as e:
             logger.error(f"Unexpected error in scenario generation: {str(e)}")
             raise HTTPException(status_code=500, detail=f"Unexpected error during scenario generation: {str(e)}")
 
 @app.post("/api/ai/chat-completion")
 async def chat_completion(payload: ChatRequest):
-    if not OPENROUTER_API_KEY:
-        raise HTTPException(status_code=500, detail="OpenRouter API key is missing on the server.")
+    if not GROQ_API_KEY:
+        raise HTTPException(status_code=500, detail="GROQ_API_KEY is missing on the server.")
 
-    logger.info("Generating character chat completion response.")
+    logger.info("Generating character chat completion response from Groq.")
 
     async with httpx.AsyncClient(timeout=45.0) as client:
         try:
             response = await client.post(
-                "https://openrouter.ai/api/v1/chat/completions",
+                "https://api.groq.com/openai/v1/chat/completions",
                 json={
-                    "model": "nvidia/nemotron-nano-9b-v2:free",
+                    "model": "llama-3.3-70b-versatile",
                     "messages": [
                         {"role": "system", "content": payload.system_prompt},
                         {"role": "user", "content": payload.user_message}
                     ],
                 },
                 headers={
-                    "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+                    "Authorization": f"Bearer {GROQ_API_KEY}",
                     "Content-Type": "application/json",
-                    "HTTP-Referer": "http://localhost:3000",
-                    "X-Title": "AImposter Game",
                 }
             )
             response.raise_for_status()
             data = response.json()
             reply_text = data["choices"][0]["message"]["content"]
-            logger.info("AI chat reply generated successfully.")
+            logger.info("AI chat reply generated successfully from Groq.")
             return {"reply": reply_text}
 
         except httpx.HTTPStatusError as e:
-            logger.error(f"OpenRouter HTTP Error: {e.response.text}")
-            raise HTTPException(status_code=e.response.status_code, detail=f"OpenRouter API error: {e.response.text}")
+            logger.error(f"Groq HTTP Error: {e.response.text}")
+            raise HTTPException(status_code=e.response.status_code, detail=f"Groq API error: {e.response.text}")
         except Exception as e:
             logger.error(f"Unexpected error in chat completion: {str(e)}")
             raise HTTPException(status_code=500, detail=f"Unexpected error during chat completion: {str(e)}")

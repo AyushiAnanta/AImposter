@@ -31,6 +31,11 @@ const LandingPage = () => {
     setSelectedPreset(''); // Clear preset selection when custom text is typed
   };
 
+  const handlePlayAgain = () => {
+    setGame(false);
+    setContext_ID('');
+  };
+
   const startGame = async () => {
     const finalTheme = customTheme.trim() || selectedPreset || 'Murder Mystery';
     setLoading(true);
@@ -52,42 +57,42 @@ const LandingPage = () => {
   if (loading) {
     return <Loader />;
   } else if (game) {
-    return <GamePage context_ID={context_ID} />;
+    return <GamePage context_ID={context_ID} onPlayAgain={handlePlayAgain} />;
   }
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-[url('/d1.png')] bg-no-repeat bg-cover bg-center py-10 px-4">
-      {/* Semi-transparent dark overlay card */}
-      <div className="w-full max-w-5xl bg-neutral-950/85 backdrop-blur-md border border-stone-800/80 p-6 sm:p-10 rounded-3xl shadow-2xl flex flex-col items-center">
+      {/* Light cream manila file overlay card */}
+      <div className="w-full max-w-5xl bg-amber-50 border border-stone-300 p-6 sm:p-10 rounded-lg shadow-2xl flex flex-col items-center">
         
         {/* Title */}
-        <h1 className="text-5xl sm:text-6xl special-elite-regular font-bold text-amber-500 mb-2 tracking-wide text-center drop-shadow-md">
+        <h1 className="text-5xl sm:text-6xl special-elite-regular font-bold text-red-950 mb-2 tracking-wide text-center drop-shadow-sm">
           AImposter
         </h1>
-        <h5 className="text-xl sm:text-2xl special-elite-regular text-stone-300 font-semibold mb-8 text-center px-4">
+        <h5 className="text-xl sm:text-2xl special-elite-regular text-stone-700 font-semibold mb-8 text-center px-4">
           Every character has a story. One of them is fiction.
         </h5>
 
         {/* Info / How To Play Grid */}
-        <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 border-b border-dashed border-stone-800 pb-8">
-          <div className="bg-stone-900/60 p-5 rounded-2xl border border-stone-800 flex flex-col items-center text-center">
+        <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 border-b border-dashed border-stone-300 pb-8">
+          <div className="bg-white p-5 rounded-md border border-stone-200 shadow-sm flex flex-col items-center text-center">
             <span className="text-3xl mb-2">📜</span>
-            <h4 className="text-amber-100 font-serif font-bold text-lg mb-1">1. Choose a Theme</h4>
-            <p className="text-stone-400 text-sm leading-relaxed">
+            <h4 className="text-red-900 font-serif font-bold text-lg mb-1">1. Choose a Theme</h4>
+            <p className="text-stone-600 text-sm leading-relaxed">
               Select one of our preset mystery cases or type your own custom story theme.
             </p>
           </div>
-          <div className="bg-stone-900/60 p-5 rounded-2xl border border-stone-800 flex flex-col items-center text-center">
+          <div className="bg-white p-5 rounded-md border border-stone-200 shadow-sm flex flex-col items-center text-center">
             <span className="text-3xl mb-2">💬</span>
-            <h4 className="text-amber-100 font-serif font-bold text-lg mb-1">2. Interrogate Suspects</h4>
-            <p className="text-stone-400 text-sm leading-relaxed">
+            <h4 className="text-red-900 font-serif font-bold text-lg mb-1">2. Interrogate Suspects</h4>
+            <p className="text-stone-600 text-sm leading-relaxed">
               Chat with each suspect. The innocents speak truth, but the Imposter will lie to cover up.
             </p>
           </div>
-          <div className="bg-stone-900/60 p-5 rounded-2xl border border-stone-800 flex flex-col items-center text-center">
+          <div className="bg-white p-5 rounded-md border border-stone-200 shadow-sm flex flex-col items-center text-center">
             <span className="text-3xl mb-2">🔍</span>
-            <h4 className="text-amber-100 font-serif font-bold text-lg mb-1">3. Solve the Case</h4>
-            <p className="text-stone-400 text-sm leading-relaxed">
+            <h4 className="text-red-900 font-serif font-bold text-lg mb-1">3. Solve the Case</h4>
+            <p className="text-stone-600 text-sm leading-relaxed">
               Deduct discrepancies, make your final accusation, and uncover the real truth.
             </p>
           </div>
@@ -95,7 +100,7 @@ const LandingPage = () => {
 
         {/* Theme Selector Section */}
         <div className="w-full flex flex-col items-center mb-8">
-          <h3 className="text-2xl font-serif text-stone-200 font-bold mb-5 self-start px-2">
+          <h3 className="text-2xl font-serif text-stone-800 font-bold mb-5 self-start px-2">
             Select Case File Theme
           </h3>
           
@@ -108,20 +113,20 @@ const LandingPage = () => {
                   key={theme.id}
                   type="button"
                   onClick={() => handleSelectPreset(theme.name)}
-                  className={`p-4 rounded-xl border text-left flex flex-col justify-between h-32 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg
+                  className={`p-4 rounded-md border text-left flex flex-col justify-between h-32 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md
                     ${isActive 
-                      ? 'bg-amber-950/40 border-amber-500/80 shadow-amber-950/20' 
-                      : 'bg-stone-900/40 border-stone-800/60 hover:bg-stone-900/60 hover:border-stone-700/80'
+                      ? 'bg-amber-100/60 border-red-900/80 shadow-md ring-2 ring-red-900/20' 
+                      : 'bg-white border-stone-200 hover:bg-stone-50 hover:border-stone-300'
                     }`}
                 >
                   <div className="flex items-center justify-between w-full">
                     <span className="text-2xl">{theme.icon}</span>
                     {isActive && (
-                      <span className="h-2 w-2 rounded-full bg-amber-500 animate-ping"></span>
+                      <span className="h-2 w-2 rounded-full bg-red-900 animate-ping"></span>
                     )}
                   </div>
                   <div>
-                    <h4 className="font-bold font-serif text-stone-200 text-base mb-1">{theme.name}</h4>
+                    <h4 className="font-bold font-serif text-red-950 text-base mb-1">{theme.name}</h4>
                     <p className="text-xs text-stone-500 leading-tight line-clamp-2">{theme.desc}</p>
                   </div>
                 </button>
@@ -130,7 +135,7 @@ const LandingPage = () => {
           </div>
 
           {/* Custom Theme Box */}
-          <div className="w-full bg-stone-900/40 p-4 rounded-2xl border border-stone-800/80 flex flex-col sm:flex-row items-center gap-4">
+          <div className="w-full bg-white p-4 rounded-md border border-stone-200 shadow-sm flex flex-col sm:flex-row items-center gap-4">
             <div className="flex-1 w-full">
               <label htmlFor="custom-theme" className="block text-xs font-serif text-stone-500 mb-1 pl-1">
                 Or craft your own mystery case theme...
@@ -141,13 +146,13 @@ const LandingPage = () => {
                 placeholder="e.g. Heist during a wedding, Bollywood train robbery, Cursed diamond..."
                 value={customTheme}
                 onChange={handleCustomChange}
-                className="w-full h-11 px-4 bg-stone-950 border border-stone-800 rounded-xl text-stone-200 placeholder:text-stone-600 focus:outline-none focus:border-amber-600 transition-colors text-sm"
+                className="w-full h-11 px-4 bg-stone-50 border border-stone-300 rounded-md text-stone-850 placeholder:text-stone-400 focus:outline-none focus:border-red-900 transition-colors text-sm"
               />
             </div>
             {customTheme.trim() !== '' && (
               <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
-                <span className="h-2 w-2 rounded-full bg-amber-500 animate-ping"></span>
-                <span className="text-xs font-serif text-amber-500 font-bold uppercase tracking-wider">Custom Active</span>
+                <span className="h-2 w-2 rounded-full bg-red-900 animate-ping"></span>
+                <span className="text-xs font-serif text-red-900 font-bold uppercase tracking-wider">Custom Active</span>
               </div>
             )}
           </div>
@@ -157,7 +162,7 @@ const LandingPage = () => {
         <button
           type="button"
           onClick={startGame}
-          className="px-10 py-4 text-lg font-serif font-bold uppercase tracking-wider text-neutral-950 bg-amber-500 hover:bg-amber-400 hover:scale-105 active:scale-95 transition-all duration-200 rounded-2xl shadow-xl shadow-amber-950/20"
+          className="px-10 py-4 text-lg font-serif font-bold uppercase tracking-wider text-amber-100 bg-stone-800 hover:bg-stone-700 hover:scale-105 active:scale-95 transition-all duration-200 rounded-md shadow-md"
         >
           Begin Investigation
         </button>

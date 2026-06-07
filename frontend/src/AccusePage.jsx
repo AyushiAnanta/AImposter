@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import ResultPage from './ResultPage'
 import API from "./api/axios";
 
-const AccusePage = ({gameData}) => {
+const AccusePage = ({gameData, onPlayAgain}) => {
 
     const [win, setWin] = useState(0)
     const [result, setResult] = useState('')
@@ -15,7 +15,7 @@ const AccusePage = ({gameData}) => {
             })
             console.log(res.data)
             setResult(res.data)
-            if(res.data === 'won!!!') {
+            if(res.data.data === 'won!!!') {
                 setWin(1)
             } else {
                 setWin(-1)
@@ -26,7 +26,7 @@ const AccusePage = ({gameData}) => {
     }
 
     if(win !=0) {
-        return <ResultPage result={result}/>
+        return <ResultPage result={result} onPlayAgain={onPlayAgain}/>
     }
     else {
         return (

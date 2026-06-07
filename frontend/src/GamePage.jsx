@@ -5,7 +5,7 @@ import AccusePage from './AccusePage';
 
 
 // Main Game Page Component
-const GamePage = ({context_ID}) => {
+const GamePage = ({context_ID, onPlayAgain}) => {
   const [gameData, setGameData] = useState(null);
   const [chat , setChat] =useState(false)
   const [chatcharacter, setChatcharacter] = useState('')
@@ -52,7 +52,7 @@ useEffect(() => {
   );
 
   if(accuse) {
-      return <AccusePage gameData={gameData}/>
+      return <AccusePage gameData={gameData} onPlayAgain={onPlayAgain}/>
   } else {
       if(chat) { 
         return <ChatPage chatcharacter={chatcharacter} gameData={gameData} onNewMessage={handleChatUpdate} setChat={setChat}/>

@@ -1,38 +1,60 @@
 import API from "./api/axios";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const ChatPage = ({chatcharacter, gameData, onNewMessage, setChat}) => {
 
   const [message, setMessage] = useState('');
-  // 1. Add new state for loading
   const [isSending, setIsSending] = useState(false);
+  const [localMessages, setLocalMessages] = useState([]);
+
+  // Sync with prop data on mount or when character/gameData changes
+  useEffect(() => {
+    const history = gameData?.chatHistory?.filter(chat => chat.characterName === chatcharacter) || [];
+    setLocalMessages(history);
+  }, [chatcharacter, gameData]);
 
   const Chat = async () => {
-    if (!message.trim() || isSending) return; // Don't send empty or while already sending
+    const userMsgText = message.trim();
+    if (!userMsgText || isSending) return; // Don't send empty or while already sending
 
     console.log('sending message');
-    setIsSending(true); // 2. Set loading to true
+    setIsSending(true);
+
+    // Optimistically add user message to local chat log immediately
+    const userMessageObj = {
+      characterName: chatcharacter,
+      sender: 'Player',
+      message: userMsgText,
+      timestamp: new Date()
+    };
+    setLocalMessages(prev => [...prev, userMessageObj]);
+    setMessage(''); // Clear input box immediately
 
     try {
       // Send the chat message
       const res = await API.post(`/api/v1/${gameData._id}/chat`, {
         "characterName": chatcharacter,
-        "message": message
+        "message": userMsgText
       });
       
       console.log('Message sent:', res);
 
-      // Notify the parent component to refetch all game data
+      // Optimistically add AI response to local list immediately
+      const aiMessageObj = {
+        characterName: chatcharacter,
+        sender: 'AI',
+        message: res.data.data.message,
+        timestamp: new Date()
+      };
+      setLocalMessages(prev => [...prev, aiMessageObj]);
+
+      // Notify the parent component to refetch all game data in the background
       onNewMessage(); 
-      
-      // Clear the input field
-      setMessage('');
 
     } catch (error) {
       console.log('couldnt send message', error);
     } finally {
-      // 3. Set loading to false after try/catch is complete
       setIsSending(false);
     }
   };
@@ -71,9 +93,7 @@ const ChatPage = ({chatcharacter, gameData, onNewMessage, setChat}) => {
           <div className='flex-1 flex flex-col space-y-2 p-4 overflow-y-auto'>
             
             {/* Filter and map messages */}
-            {gameData?.chatHistory
-              ?.filter(chat => chat.characterName === chatcharacter)
-              ?.map((chat, index) => { 
+            {localMessages?.map((chat, index) => { 
                 
                 const isAI = chat.sender === 'AI';
                 
