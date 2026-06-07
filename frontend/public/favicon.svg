@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!-- Rounded square background for high visibility on all browser themes -->
+  <rect width="512" height="512" rx="128" fill="#1c1917"/>
+  
+  <!-- Magnifying glass handle (angled down-right) -->
+  <line x1="325" y1="325" x2="435" y2="435" stroke="#78716c" stroke-width="44" stroke-linecap="round"/>
+  <!-- Metallic connector band -->
+  <line x1="305" y1="305" x2="335" y2="335" stroke="#d6d3d1" stroke-width="44" stroke-linecap="round"/>
+  
+  <!-- Lens outer ring (crimson red) and amber/cream glass background -->
+  <circle cx="225" cy="225" r="135" fill="#fef3c7" stroke="#b91c1c" stroke-width="32" />
+  
+  <!-- Question Mark (Mystery Hook) inside the lens -->
+  <path d="M185 185 C185 125, 265 125, 265 180 C265 220, 225 225, 225 265" fill="none" stroke="#1c1917" stroke-width="28" stroke-linecap="round"/>
+  <!-- Imposter Red Dot -->
+  <circle cx="225" cy="315" r="20" fill="#ef4444" />
+</svg>
