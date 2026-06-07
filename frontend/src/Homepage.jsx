@@ -1,169 +1,58 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react'
 import API from './api/axios';
+
 import GamePage from './GamePage';
 import Loader from './Loader';
-
-const PRESET_THEMES = [
-  { id: 'haunted', name: 'Haunted', desc: 'Cursed locations & paranormal activity', icon: '👻' },
-  { id: 'kidnapped', name: 'Kidnapped', desc: 'Ransom letters & secret abductions', icon: '👤' },
-  { id: 'murder', name: 'Murder Mystery', desc: 'Classic whodunits & cold-blooded acts', icon: '🩸' },
-  { id: 'heist', name: 'Heritage Heist', desc: 'Stolen relics & historic museum break-ins', icon: '🏛️' },
-  { id: 'royal', name: 'Royal Betrayal', desc: 'Poisoned heirs & dynastic palace secrets', icon: '👑' },
-  { id: 'cyber', name: 'Cyber Sabotage', desc: 'Hacks, trace hunts & corporate spy codes', icon: '💻' },
-  { id: 'train', name: 'Train Robbery', desc: 'High-stakes theft aboard luxury express trains', icon: '🚂' },
-  { id: 'bio', name: 'Bio-Hazard', desc: 'Secret leaks & toxic biological sabotage', icon: '🧪' },
-];
-
 const Homepage = () => {
-  const [loading, setLoading] = useState(false);
-  const [context_ID, setContext_ID] = useState('');
-  const [game, setGame] = useState(false);
-  const [selectedPreset, setSelectedPreset] = useState('Murder Mystery');
-  const [customTheme, setCustomTheme] = useState('');
-
-  const handleSelectPreset = (themeName) => {
-    setSelectedPreset(themeName);
-    setCustomTheme(''); // Clear custom theme when a preset is selected
-  };
-
-  const handleCustomChange = (e) => {
-    setCustomTheme(e.target.value);
-    setSelectedPreset(''); // Clear preset selection when custom text is typed
-  };
-
-  const startGame = async () => {
-    const finalTheme = customTheme.trim() || selectedPreset || 'Murder Mystery';
-    setLoading(true);
-    
-    try {
-      const res = await API.post('/api/v1/', {
-        theme: finalTheme,
-        character_count: 4
-      });
-      setLoading(false);
-      setContext_ID(res.data?.data._id);
-      setGame(true);
+  const [loading, setLoading] = useState(false)
+  const [context_ID, setContext_ID] = useState('')
+  const [game, setGame] = useState(false)
+  useEffect(() => {
+        console.log('The loading state has changed to:', loading);
+    }, [loading]);
+    useEffect(() => {
+        console.log('The game state has changed to:', game);
+    }, [game]);
+    useEffect(() => {
+        console.log('The context_ID has is:', context_ID);
+    }, [context_ID]);
+    const startGame = async () => {
+      setLoading(true)
+      
+        try {
+            const res = await API.post('/api/v1/',{
+                "theme": "",
+                "character_count": 4
+            }
+      );
+      setLoading(false)
+      
+      console.log(' success:', res.data);
+      setContext_ID(res.data?.data._id)
+      setGame(true)
+      
     } catch (error) {
-      setLoading(false);
       console.log('failed:', error.response?.data || error.message);
     }
-  };
+    }
 
-  if (loading) {
-    return <Loader />;
-  } else if (game) {
-    return <GamePage context_ID={context_ID} />;
-  }
-
+    if(loading) {
+      return <Loader />
+    } else if(game) {
+      return <GamePage context_ID={context_ID}/>
+    }
+    else {
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-[url('/d1.png')] bg-no-repeat bg-cover bg-center py-10 px-4">
-      {/* Semi-transparent dark overlay card */}
-      <div className="w-full max-w-5xl bg-neutral-950/85 backdrop-blur-md border border-stone-800/80 p-6 sm:p-10 rounded-3xl shadow-2xl flex flex-col items-center">
-        
-        {/* Title */}
-        <h1 className="text-5xl sm:text-6xl special-elite-regular font-bold text-amber-500 mb-2 tracking-wide text-center drop-shadow-md">
-          AImposter
-        </h1>
-        <h5 className="text-xl sm:text-2xl special-elite-regular text-stone-300 font-semibold mb-8 text-center px-4">
-          Every character has a story. One of them is fiction.
-        </h5>
-
-        {/* Info / How To Play Grid */}
-        <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 border-b border-dashed border-stone-800 pb-8">
-          <div className="bg-stone-900/60 p-5 rounded-2xl border border-stone-800 flex flex-col items-center text-center">
-            <span className="text-3xl mb-2">📜</span>
-            <h4 className="text-amber-100 font-serif font-bold text-lg mb-1">1. Choose a Theme</h4>
-            <p className="text-stone-400 text-sm leading-relaxed">
-              Select one of our preset mystery cases or type your own custom story theme.
-            </p>
-          </div>
-          <div className="bg-stone-900/60 p-5 rounded-2xl border border-stone-800 flex flex-col items-center text-center">
-            <span className="text-3xl mb-2">💬</span>
-            <h4 className="text-amber-100 font-serif font-bold text-lg mb-1">2. Interrogate Suspects</h4>
-            <p className="text-stone-400 text-sm leading-relaxed">
-              Chat with each suspect. The innocents speak truth, but the Imposter will lie to cover up.
-            </p>
-          </div>
-          <div className="bg-stone-900/60 p-5 rounded-2xl border border-stone-800 flex flex-col items-center text-center">
-            <span className="text-3xl mb-2">🔍</span>
-            <h4 className="text-amber-100 font-serif font-bold text-lg mb-1">3. Solve the Case</h4>
-            <p className="text-stone-400 text-sm leading-relaxed">
-              Deduct discrepancies, make your final accusation, and uncover the real truth.
-            </p>
-          </div>
-        </div>
-
-        {/* Theme Selector Section */}
-        <div className="w-full flex flex-col items-center mb-8">
-          <h3 className="text-2xl font-serif text-stone-200 font-bold mb-5 self-start px-2">
-            Select Case File Theme
-          </h3>
-          
-          {/* Presets Grid */}
-          <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            {PRESET_THEMES.map((theme) => {
-              const isActive = selectedPreset === theme.name;
-              return (
-                <button
-                  key={theme.id}
-                  type="button"
-                  onClick={() => handleSelectPreset(theme.name)}
-                  className={`p-4 rounded-xl border text-left flex flex-col justify-between h-32 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg
-                    ${isActive 
-                      ? 'bg-amber-950/40 border-amber-500/80 shadow-amber-950/20' 
-                      : 'bg-stone-900/40 border-stone-800/60 hover:bg-stone-900/60 hover:border-stone-700/80'
-                    }`}
-                >
-                  <div className="flex items-center justify-between w-full">
-                    <span className="text-2xl">{theme.icon}</span>
-                    {isActive && (
-                      <span className="h-2 w-2 rounded-full bg-amber-500 animate-ping"></span>
-                    )}
-                  </div>
-                  <div>
-                    <h4 className="font-bold font-serif text-stone-200 text-base mb-1">{theme.name}</h4>
-                    <p className="text-xs text-stone-500 leading-tight line-clamp-2">{theme.desc}</p>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Custom Theme Box */}
-          <div className="w-full bg-stone-900/40 p-4 rounded-2xl border border-stone-800/80 flex flex-col sm:flex-row items-center gap-4">
-            <div className="flex-1 w-full">
-              <label htmlFor="custom-theme" className="block text-xs font-serif text-stone-500 mb-1 pl-1">
-                Or craft your own mystery case theme...
-              </label>
-              <input
-                id="custom-theme"
-                type="text"
-                placeholder="e.g. Heist during a wedding, Bollywood train robbery, Cursed diamond..."
-                value={customTheme}
-                onChange={handleCustomChange}
-                className="w-full h-11 px-4 bg-stone-950 border border-stone-800 rounded-xl text-stone-200 placeholder:text-stone-600 focus:outline-none focus:border-amber-600 transition-colors text-sm"
-              />
-            </div>
-            {customTheme.trim() !== '' && (
-              <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
-                <span className="h-2 w-2 rounded-full bg-amber-500 animate-ping"></span>
-                <span className="text-xs font-serif text-amber-500 font-bold uppercase tracking-wider">Custom Active</span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Investigate Button */}
+    <div className="h-screen w-screen flex flex-col items-center justify-center fixed bg-[url('/d1.png')] bg-no-repeat bg-cover bg-center">
+      
+        <h1 className='text-6xl special-elite-regular font-bold text-neutral-900 m-5'>AImposter</h1>
+        <h5 className='text-2xl special-elite-regular font-bold text-neutral-700 px-3 align-center text-center'>Every character has a story, One of them is fiction.</h5>
         <button
-          type="button"
-          onClick={startGame}
-          className="px-10 py-4 text-lg font-serif font-bold uppercase tracking-wider text-neutral-950 bg-amber-500 hover:bg-amber-400 hover:scale-105 active:scale-95 transition-all duration-200 rounded-2xl shadow-xl shadow-amber-950/20"
-        >
-          Begin Investigation
-        </button>
-      </div>
+        type="button"
+        onClick={startGame}
+        className="p-5 m-5 special-elite-regular text-neutral-400 bg-neutral-950 font-bold hover:bg-neutral-800 transition-all duration-200 rounded-3xl">Investigate</button>
     </div>
-  );
-};
+  )}
+}
 
-export default Homepage;
+export default Homepage
