@@ -24,99 +24,29 @@ const createGame = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Character count must be at least 2.");
   }
 
-  // 3. Build prompt
-  const masterPrompt = buildMasterPrompt(
-    theme,
-    location,
-    finalCharacterCount
-  );
-
-  if (!masterPrompt) {
-    throw new ApiError(500, "Prompt generation failed");
-  }
-
-  console.log("PROMPT:", masterPrompt);
-
   try {
-    // 4. Call OpenRouter
-    const aiResponse = await axios.post(
-  "https://openrouter.ai/api/v1/chat/completions",
-  {
-    model: "nvidia/nemotron-nano-9b-v2:free",
-    messages: [
-      {
-        role: "user",
-        content: masterPrompt,
-      },
-    ],
-  },
-  {
-    headers: {
-      Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-      "Content-Type": "application/json",
+    // 3. Call FastAPI Service
+    const fastapiUrl = process.env.FASTAPI_SERVICE_URL || "http://127.0.0.1:8001";
+    const aiResponse = await axios.post(`${fastapiUrl}/api/ai/generate-scenario`, {
+      theme,
+      location,
+      character_count: finalCharacterCount
+    });
 
-      // 🔥 REQUIRED by OpenRouter
-      "HTTP-Referer":` "http://localhost:3000"`, // or your app URL
-      "X-Title": "AImposter Game",
-    },
-  }
-);
+    const parsedData = aiResponse.data;
 
-const response = aiResponse.data.choices[0].message.content;
-console.log("AI RESPONSE:", response);
-console.log("MODEL USED:", aiResponse.data.model)
-    // 6. OPTIONAL: parse JSON (depends on your prompt)
-    let parsedData;
-    try {
-      parsedData = JSON.parse(response);
-    } catch (err) {
-      throw new ApiError(500, "Failed to parse AI response as JSON");
-    }
-
-    // 7. Save to DB
+    // 4. Save to DB
     const game = await GameSession.create(parsedData);
 
-    // 8. Send response
+    // 5. Send response
     return res.status(201).json(
       new ApiResponse(201, game, "Game created successfully")
     );
 
   } catch (error) {
-    console.error("AI ERROR:", error);
+    console.error("AI ERROR:", error.response ? error.response.data : error.message);
     throw new ApiError(500, "AI generation failed");
   }
-
-    
-    function buildMasterPrompt(theme, location, character_count) {
-    // Start with the core instructions
-    let prompt = `
-        You are a master mystery writer for a detective game called "AImposter".
-        Your task is to generate a complete game scenario in a single, valid JSON object. Do not include any text before or after the JSON.
-        The entire setting, including character names, must be authentically Indian.
-
-        The JSON object must have:
-        - "story": A short backstory for the mystery.
-        - "theme": The genre of the mystery.
-        - "location": The specific Indian setting for the story.
-        - "characters": An array of ${character_count} character objects.
-        - "truth": A string describing what actually happened.
-
-        For the characters array:
-        - Each character must have a "name", a "bio", and a "gender" ('male', 'female', or 'other').
-        - Exactly one character must have "isImposter" set to true.
-
-        the mystery should be harder to solve with atleast 2 very strong suspects.
-
-
-
-        ${theme? `The mystery's theme must be '${theme}'` : `You must invent a suitable theme`} and 
-        ${location? `it must be set in a '${location}' in India.` : `it must be set in a suitable Indian location you invent.`}
-        Generate a new, unique scenario now based on these rules.
-    `;
-
-    
-    return prompt;
-}
 });
 
 const getGameState = asyncHandler(async (req, res) => {
@@ -130,7 +60,7 @@ const getGameState = asyncHandler(async (req, res) => {
     const gameId = req.params.id;
     console.log(`game requested with id: ${gameId}`)
     try {
-        const gameState = await GameSession.findById(gameId).select("-truth -characters{isImposter}")
+        const gameState = await GameSession.findById(gameId).select("-truth")
     
         if (!gameState){
             throw new ApiError(400,'couldnt find game state')
@@ -275,32 +205,23 @@ const handleChatMessage = asyncHandler(async (req, res) => {
         NEVER IN ANY SCENARIO ACCEPT THAT YOU ARE THE IMPOSTER
     `;
 
-    // 6. Call the OpenRouter API
+    // 6. Call the FastAPI Service
     let aiReplyText;
     try {
+        const fastapiUrl = process.env.FASTAPI_SERVICE_URL || "http://127.0.0.1:8001";
         const response = await axios.post(
-            "https://openrouter.ai/api/v1/chat/completions",
+            `${fastapiUrl}/api/ai/chat-completion`,
             {
-                model: "nvidia/nemotron-nano-9b-v2:free", // Using a standard model ID
-                messages: [
-                    { role: "system", content: systemPrompt },
-                    { role: "user", content: message } // The player's message
-                ],
-            },
-            {
-                headers: {
-                    "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
-                    "Content-Type": "application/json",
-                    // You can keep these headers
-                }
+                system_prompt: systemPrompt,
+                user_message: message
             }
         );
-        // Extract only the message content
-        aiReplyText = response.data.choices[0].message.content;
+        // Extract the reply text from FastAPI response
+        aiReplyText = response.data.reply;
 
     } catch (error) {
         // Log the detailed error from the AI service for better debugging
-        console.error("OpenRouter API Error:", error.response ? error.response.data : error.message);
+        console.error("FastAPI AI Service Error:", error.response ? error.response.data : error.message);
         throw new ApiError(500, "Failed to get a response from the AI.");
     }
 
