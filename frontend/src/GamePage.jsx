@@ -85,15 +85,27 @@ useEffect(() => {
                   <div>
                     <h2 className="text-2xl font-serif font-semibold text-stone-800 mb-4 text-center sm:text-left">Persons of Interest</h2>
                     <div className='grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6'>
-                      {gameData.characters.map((character, index) => (
-                        <button 
-                        type="button"
-                        onClick={() => Chat(character.name)}
-                        key={index} className='bg-white p-4 rounded-md border border-stone-200 shadow-sm hover:shadow-lg transition-shadow duration-300'>
-                          <h3 className='text-xl font-bold font-serif text-red-900'>{character.name}</h3>
-                          <p className='text-stone-600 mt-2 text-sm leading-snug'>{character.bio}</p>
-                        </button>
-                      ))}
+                      {gameData.characters.map((character, index) => {
+                        const chatCount = gameData.chatHistory ? gameData.chatHistory.filter(c => c.characterName === character.name && c.sender === 'Player').length : 0;
+                        return (
+                          <button 
+                            type="button"
+                            onClick={() => Chat(character.name)}
+                            key={index} 
+                            className='bg-white p-4 rounded-md border border-stone-200 shadow-sm hover:shadow-lg transition-shadow duration-300 text-left'
+                          >
+                            <div className="flex justify-between items-start">
+                              <h3 className='text-xl font-bold font-serif text-red-900'>{character.name}</h3>
+                              {chatCount > 0 && (
+                                <span className="text-xs font-serif bg-amber-100 text-red-900 border border-red-900/30 px-2 py-0.5 rounded shrink-0 ml-2">
+                                  💬 Interrogated ({chatCount})
+                                </span>
+                              )}
+                            </div>
+                            <p className='text-stone-600 mt-2 text-sm leading-snug'>{character.bio}</p>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
@@ -113,7 +125,10 @@ useEffect(() => {
           </div>
         </div>
         
-      );}}
+      );
+      }
+      return null;
+  }
 }
 
 export default GamePage
